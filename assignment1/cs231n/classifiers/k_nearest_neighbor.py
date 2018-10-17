@@ -5,7 +5,7 @@ class KNearestNeighbor(object):
 
   def __init__(self):
     pass
-
+       
   def train(self, X, y):
     """
     Train the classifier. For k-nearest neighbors this is just 
@@ -17,6 +17,7 @@ class KNearestNeighbor(object):
     - y: A numpy array of shape (N,) containing the training labels, where
          y[i] is the label for X[i].
     """
+    print("Initialzing...")
     self.X_train = X
     self.y_train = y
     
@@ -63,7 +64,6 @@ class KNearestNeighbor(object):
     num_test = X.shape[0]
     num_train = self.X_train.shape[0]
     dists = np.zeros((num_test, num_train))
-    print("run this)
     for i in range(num_test):
       print("This is the",i,"run")
 
@@ -126,7 +126,7 @@ class KNearestNeighbor(object):
     # HINT: Try to formulate the l2 distance using matrix multiplication    #
     #       and two broadcast sums.                                         #
     #########################################################################
-    dists=np.sqrt((np.power(self.X_train - X[i,:] for i in np.arange(X.shape[0]),2)))
+#     dists=np.sqrt((np.power(self.X_train - X[i,:] for i in np.arange(X.shape[0]),2)))
     #########################################################################
     #                         END OF YOUR CODE                              #
     #########################################################################
