@@ -9,7 +9,7 @@ class KNearestNeighbor(object):
 
   def train(self, X, y):
     """
-    Train the classifier. For k-nearest neighbors this is just 
+    Train the classifier. For k-nearest neighbors this is just
     memorizing the training data.
 
     Inputs:
@@ -35,7 +35,7 @@ class KNearestNeighbor(object):
 
     Returns:
     - y: A numpy array of shape (num_test,) containing predicted labels for the
-      test data, where y[i] is the predicted label for the test point X[i].  
+      test data, where y[i] is the predicted label for the test point X[i].
     """
     if num_loops == 0:
       dists = self.compute_distances_no_loops(X)
@@ -51,7 +51,7 @@ class KNearestNeighbor(object):
   def compute_distances_two_loops(self, X):
     """
     Compute the distance between each test point in X and each training point
-    in self.X_train using a nested loop over both the training data and the 
+    in self.X_train using a nested loop over both the training data and the
     test data.
 
     Inputs:
@@ -133,8 +133,13 @@ class KNearestNeighbor(object):
     # HINT: Try to formulate the l2 distance using matrix multiplication    #
     #       and two broadcast sums.                                         #
     #########################################################################
-#     dists=np.sqrt((np.power(self.X_train - X[i,:] for i in np.arange(X.shape[0]),2)))
-    #########################################################################
+    # (a-b)^2=a^2-2ab+b^2
+    # 获取相乘后对角线的值，即为每一行aa(1,num_test)和bb(1,num_train)的和
+    aa = np.diag(np.dot(X, X.T)).reshape(1, num_test)
+    bb = np.diag(np.dot(self.X_train, self.X_train.T)).reshape(1, num_train)
+    # 计算ab的值 ,shape 为 (num_test,num_train)
+    ab = np.dot(X, self.X_train.T)
+    dists = np.sqrt(aa.T - 2 * ab + bb)
     #                         END OF YOUR CODE                              #
     #########################################################################
     return dists
@@ -150,7 +155,7 @@ class KNearestNeighbor(object):
 
     Returns:
     - y: A numpy array of shape (num_test,) containing predicted labels for the
-      test data, where y[i] is the predicted label for the test point X[i].  
+      test data, where y[i] is the predicted label for the test point X[i].
     """
     num_test = dists.shape[0]
     y_pred = np.zeros(num_test)
