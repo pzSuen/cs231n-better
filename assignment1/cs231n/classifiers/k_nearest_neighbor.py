@@ -18,7 +18,7 @@ class KNearestNeighbor(object):
     - y: A numpy array of shape (N,) containing the training labels, where
          y[i] is the label for X[i].
     """
-    print("Initialzing...")
+    # print("Initialzing...")
     self.X_train = X
     self.y_train = y
 
