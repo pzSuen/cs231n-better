@@ -22,18 +22,22 @@ def svm_loss_naive(W, X, y, reg):
   dW = np.zeros(W.shape) # initialize the gradient as zero
 
   # compute the loss and the gradient
-  num_classes = W.shape[1]
-  num_train = X.shape[0]
-  loss = 0.0
-  for i in range(num_train):
-    scores = X[i].dot(W)
-    correct_class_score = scores[y[i]]
-    for j in range(num_classes):
+  num_classes = W.shape[1]      # 类别个数    
+  num_train = X.shape[0]        # 训练样本个数
+  loss = 0.0                      
+  for i in range(num_train):      
+    scores = X[i].dot(W)        # shape=(1,c),其中c为类别,计算各个类别对该样本的打分scores
+    correct_class_score = scores[y[i]]         # 器真是类别对该样本的打分
+    for j in range(num_classes):           #计算该样本的损失
       if j == y[i]:
         continue
       margin = scores[j] - correct_class_score + 1 # note delta = 1
       if margin > 0:
         loss += margin
+        
+
+
+
 
   # Right now the loss is a sum over all training examples, but we want it
   # to be an average instead so we divide by num_train.
@@ -42,6 +46,7 @@ def svm_loss_naive(W, X, y, reg):
   # Add regularization to the loss.
   loss += reg * np.sum(W * W)
 
+  dW += reg*W
   #############################################################################
   # TODO:                                                                     #
   # Compute the gradient of the loss function and store it dW.                #
@@ -50,7 +55,7 @@ def svm_loss_naive(W, X, y, reg):
   # loss is being computed. As a result you may need to modify some of the    #
   # code above to compute the gradient.                                       #
   #############################################################################
-
+  
 
   return loss, dW
 
