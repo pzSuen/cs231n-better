@@ -25,7 +25,12 @@ def affine_forward(x, w, b):
     # TODO: Implement the affine forward pass. Store the result in out. You   #
     # will need to reshape the input into rows.                               #
     ###########################################################################
-    pass
+    x_new = x.reshape(x.shape[0], -1)
+    out = np.dot(x_new, w) + b
+    # print("x.shape=" + str(x.shape))
+    # print("x_new.shape=" + str(x_new.shape))
+    # print("w.shape=" + str(w.shape))
+    # print("b.shape=" + str(b.shape))
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -51,14 +56,60 @@ def affine_backward(dout, cache):
     """
     x, w, b = cache
     dx, dw, db = None, None, None
+
+    print(x.shape)
     ###########################################################################
     # TODO: Implement the affine backward pass.                               #
     ###########################################################################
-    pass
+    dx = np.dot(dout, w.T).reshape(x.shape)                      # N*D
+    dw = np.dot(x.reshape(x.shape[0], -1).T,
+                dout)                         # d*M
+    db = np.sum(dout, axis=0).reshape(dout.shape[1])
+    print("dx.shape=" + str(dx.shape))
+    print("dw.shape=" + str(dw.shape))
+    print("db.shape=" + str(db.shape))
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
     return dx, dw, db
+
+if __name__ == "__main__":
+    # x = np.arange(1200).reshape(10, 5, 4, 3, 2, 1)
+
+    # w = np.random.randn(120, 5)
+    # b = np.random.randn(5)
+    # print("x.shape=" + str(x.shape))
+    # print("w.shape=" + str(w.shape))
+    # print("b.shape=" + str(b.shape))
+
+    # out, cache = affine_forward(x, w, b)
+    # print(out.shape)
+    # As usual, a bit of setup
+
+    np.random.seed(231)
+    x = np.random.randn(10, 2, 3)
+    w = np.random.randn(6, 5)
+    b = np.random.randn(5)
+    dout = np.random.randn(10, 5)
+
+    # dx_num = eval_numerical_gradient_array(
+    #     lambda x: affine_forward(x, w, b)[0], x, dout)
+    # dw_num = eval_numerical_gradient_array(
+    #     lambda w: affine_forward(x, w, b)[0], w, dout)
+    # db_num = eval_numerical_gradient_array(
+    #     lambda b: affine_forward(x, w, b)[0], b, dout)
+    # print("x.shape=" + str(dx_num.shape))
+    # print("w.shape=" + str(dw_num.shape))
+    # print("b.shape=" + str(db_num.shape))
+
+    _, cache = affine_forward(x, w, b)
+    dx, dw, db = affine_backward(dout, cache)
+
+    # The error should be around e-10 or less
+    # print('Testing affine_backward function:')
+    # print('dx error: ', rel_error(dx_num, dx))
+    # print('dw error: ', rel_error(dw_num, dw))
+    # print('db error: ', rel_error(db_num, db))
 
 
 def relu_forward(x):
@@ -76,11 +127,18 @@ def relu_forward(x):
     ###########################################################################
     # TODO: Implement the ReLU forward pass.                                  #
     ###########################################################################
-    pass
+    # zero_x=np.zeros(x.shape)
+    # x=max(zero_x,x)
+    x_new = (x>0)*np.ones(x.shape)
+    # print(x)
+    # print(x_new)
+    x_new = np.multiply(x,x_new)
+    # print(x_new)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
     cache = x
+    out= x_new
     return out, cache
 
 
@@ -171,7 +229,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         #                                                                     #
         # Note that though you should be keeping track of the running         #
         # variance, you should normalize the data based on the standard       #
-        # deviation (square root of variance) instead!                        # 
+        # deviation (square root of variance) instead!                        #
         # Referencing the original paper (https://arxiv.org/abs/1502.03167)   #
         # might prove to be helpful.                                          #
         #######################################################################
@@ -224,7 +282,7 @@ def batchnorm_backward(dout, cache):
     # Referencing the original paper (https://arxiv.org/abs/1502.03167)       #
     # might prove to be helpful.                                              #
     ###########################################################################
-    pass
+
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -240,7 +298,7 @@ def batchnorm_backward_alt(dout, cache):
     normalizaton backward pass on paper and simplify as much as possible. You
     should be able to derive a simple expression for the backward pass. 
     See the jupyter notebook for more hints.
-     
+
     Note: This implementation should expect to receive the same cache variable
     as batchnorm_backward, but might not use all of the values in the cache.
 
@@ -269,7 +327,7 @@ def layernorm_forward(x, gamma, beta, ln_param):
 
     During both training and test-time, the incoming data is normalized per data-point,
     before being scaled by gamma and beta parameters identical to that of batch normalization.
-    
+
     Note that in contrast to batch normalization, the behavior during train and test-time for
     layer normalization are identical, and we do not need to keep track of running averages
     of any sort.
@@ -433,7 +491,7 @@ def conv_forward_naive(x, w, b, conv_param):
       - 'stride': The number of pixels between adjacent receptive fields in the
         horizontal and vertical directions.
       - 'pad': The number of pixels that will be used to zero-pad the input. 
-        
+
 
     During padding, 'pad' zeros should be placed symmetrically (i.e equally on both sides)
     along the height and width axes of the input. Be careful not to modfiy the original
@@ -624,13 +682,13 @@ def spatial_groupnorm_forward(x, gamma, beta, G, gn_param):
     - cache: Values needed for the backward pass
     """
     out, cache = None, None
-    eps = gn_param.get('eps',1e-5)
+    eps = gn_param.get('eps', 1e-5)
     ###########################################################################
     # TODO: Implement the forward pass for spatial group normalization.       #
     # This will be extremely similar to the layer norm implementation.        #
     # In particular, think about how you could transform the matrix so that   #
     # the bulk of the code is similar to both train-time batch normalization  #
-    # and layer normalization!                                                # 
+    # and layer normalization!                                                #
     ###########################################################################
     pass
     ###########################################################################
