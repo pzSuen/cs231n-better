@@ -76,10 +76,11 @@ class TwoLayerNet(object):
         # Store the result in the scores variable, which should be an array of      #
         # shape (N, C).                                                             #
         #######################################################################
-        A1 = np.dot(X, W1)
-        Z1 = A1 + b1
-        A2 = np.dot(Z1, W2)
-        Z2 = A2 + b2
+        A1 = np.dot(X, W1)       # N x D,D x H
+        Z1 = A1 + b1			 # N x H
+        A2 = np.dot(Z1, W2) 	 # N x H,H x C
+        Z2 = A2 + b2			 # N x C
+        scores = Z2
         #######################################################################
         #                              END OF YOUR CODE                             #
         #######################################################################
@@ -96,7 +97,12 @@ class TwoLayerNet(object):
         # in the variable loss, which should be a scalar. Use the Softmax           #
         # classifier loss.                                                          #
         #######################################################################
-        pass
+        scores -= np.max(scores, axis=1, keepdims=True)   # 数值稳定性
+        scores = np.exp(scores)						  # 取指数
+        scores /= np.sum(scores, axis=1, keepdims=True)   # 计算softmax
+        loss = scores[np.arange(X.shape[0]), y]		  # 计算loss
+        loss = -np.log(loss).sum()
+        loss -= reg * np.sum(W * W)
 
         #######################################################################
         #                              END OF YOUR CODE                             #
@@ -109,7 +115,13 @@ class TwoLayerNet(object):
         # and biases. Store the results in the grads dictionary. For example,       #
         # grads['W1'] should store the gradient on W1, and be a matrix of same size #
         #######################################################################
-        pass
+        grads['W2']=np.array(W2.shape)
+        grads['b2']=np.array(b2.shape)
+        grads['W1']=np.array(W1.shape)
+        grads['b1']=np.array(b1.shape)
+        
+        
+
         #######################################################################
         #                              END OF YOUR CODE                             #
         #######################################################################
@@ -153,7 +165,7 @@ class TwoLayerNet(object):
             # TODO: Create a random minibatch of training data and labels, storing  #
             # them in X_batch and y_batch respectively.                             #
             ###################################################################
-            pass
+
             ###################################################################
             #                             END OF YOUR CODE                          #
             ###################################################################
