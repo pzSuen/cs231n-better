@@ -65,51 +65,13 @@ def affine_backward(dout, cache):
     dw = np.dot(x.reshape(x.shape[0], -1).T,
                 dout)                         # d*M
     db = np.sum(dout, axis=0).reshape(dout.shape[1])
-    print("dx.shape=" + str(dx.shape))
-    print("dw.shape=" + str(dw.shape))
-    print("db.shape=" + str(db.shape))
+    # print("dx.shape=" + str(dx.shape))
+    # print("dw.shape=" + str(dw.shape))
+    # print("db.shape=" + str(db.shape))
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
     return dx, dw, db
-
-if __name__ == "__main__":
-    # x = np.arange(1200).reshape(10, 5, 4, 3, 2, 1)
-
-    # w = np.random.randn(120, 5)
-    # b = np.random.randn(5)
-    # print("x.shape=" + str(x.shape))
-    # print("w.shape=" + str(w.shape))
-    # print("b.shape=" + str(b.shape))
-
-    # out, cache = affine_forward(x, w, b)
-    # print(out.shape)
-    # As usual, a bit of setup
-
-    np.random.seed(231)
-    x = np.random.randn(10, 2, 3)
-    w = np.random.randn(6, 5)
-    b = np.random.randn(5)
-    dout = np.random.randn(10, 5)
-
-    # dx_num = eval_numerical_gradient_array(
-    #     lambda x: affine_forward(x, w, b)[0], x, dout)
-    # dw_num = eval_numerical_gradient_array(
-    #     lambda w: affine_forward(x, w, b)[0], w, dout)
-    # db_num = eval_numerical_gradient_array(
-    #     lambda b: affine_forward(x, w, b)[0], b, dout)
-    # print("x.shape=" + str(dx_num.shape))
-    # print("w.shape=" + str(dw_num.shape))
-    # print("b.shape=" + str(db_num.shape))
-
-    _, cache = affine_forward(x, w, b)
-    dx, dw, db = affine_backward(dout, cache)
-
-    # The error should be around e-10 or less
-    # print('Testing affine_backward function:')
-    # print('dx error: ', rel_error(dx_num, dx))
-    # print('dw error: ', rel_error(dw_num, dw))
-    # print('db error: ', rel_error(db_num, db))
 
 
 def relu_forward(x):
@@ -129,16 +91,16 @@ def relu_forward(x):
     ###########################################################################
     # zero_x=np.zeros(x.shape)
     # x=max(zero_x,x)
-    x_new = (x>0)*np.ones(x.shape)
+    x_new = (x > 0) * np.ones(x.shape)
     # print(x)
     # print(x_new)
-    x_new = np.multiply(x,x_new)
+    x_new = np.multiply(x, x_new)
     # print(x_new)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
     cache = x
-    out= x_new
+    out = x_new
     return out, cache
 
 
@@ -157,7 +119,8 @@ def relu_backward(dout, cache):
     ###########################################################################
     # TODO: Implement the ReLU backward pass.                                 #
     ###########################################################################
-    pass
+    x_new = (x > 0) * np.ones(x.shape)
+    dx = x_new * dout
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
