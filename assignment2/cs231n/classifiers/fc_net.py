@@ -94,25 +94,23 @@ class TwoLayerNet(object):
         b1 = self.params["b1"]
         W2 = self.params["W2"]
         b2 = self.params["b2"]
+        # print(W1,b1,W2,b2)
 
         # 第一层
-        print("X:" + str(X.shape))
-        print("W1:" + str(W1.shape))
-        print("b1" + str(b1.shape))
+        # print("X:" + str(X.shape))
+        # print("W1:" + str(W1.shape))
+        # print("b1" + str(b1.shape))
         A1, cache1 = affine_relu_forward(X, W1, b1)
         # print("cache1:" + str(cache1.shape))
-        print("A1:" + str(A1.shape))
-        fc_cache, relu_cache = cache1  # fc_cache = (x, w, b); relu_cache=X
-        W1 = fc_cache[1]
-        b1 = fc_cache[2]
+        # print("A1:" + str(A1.shape))
+        fc_cache, relu_cache = cache1  # fc_cache = (x, w, b); relu_cache=Z1
+        # W1 = fc_cache[1]
+        # b1 = fc_cache[2]
 
         # 第二层
-        Z2, cache2 = affine_forward(A1, W2, b2)      # cache = (x, w, b)
-        Z2 -= np.max(Z2, axis=1, keepdims=True)  # 数值稳定性
-        scores = np.exp(Z2)
-        scores = scores / np.sum(scores, axis=1).reshape(scores.shape[0],-1)
-        W2 = cache2[1]
-        b2 = cache2[2]
+        scores, cache2 = affine_forward(A1, W2, b2)      # cache = (x, w, b)
+        # W2 = cache2[1]
+        # b2 = cache2[2]
 
         #######################################################################
         #                             END OF YOUR CODE                             #
@@ -133,31 +131,39 @@ class TwoLayerNet(object):
         # automated tests, make sure that your L2 regularization includes a factor #
         # of 0.5 to simplify the expression for the gradient.                      #
         #######################################################################
-
+        N = X.shape[0]
         # 计算loss
-        real_y_score = scores[np.arange(X.shape[0]), y]
+        # loss,dx=softmax_loss(scores,y)
+        scores -= np.max(scores, axis=1, keepdims=True)      # 数值稳定性
+        scores = np.exp(scores)
+        scores = scores / np.sum(scores, axis=1).reshape(scores.shape[0], -1)
+        real_y_score = scores[np.arange(N), y]
         L_i = -np.log(real_y_score)
         loss = np.sum(L_i) / X.shape[0]
-        loss += self.reg * np.sum(W2 * W2)
+        loss += 0.5 * self.reg * (np.sum(W2 * W2) + np.sum(W1 * W1))
 
-        # 计算第二层
+        # # 计算第二层
         scores_copy = np.copy(scores)
-        scores_copy[np.arange(X.shape[0]), y] -= 1
-        dW2 = np.dot(A1.T, scores_copy) / X.shape[0]
-        db2 = np.sum(scores_copy, axis=0) / X.shape[0]
-        # 正则化
-        dW2 += 2 * self.reg * W2
+        scores_copy[np.arange(N), y] -= 1
+        dW2 = np.dot(A1.reshape(A1.shape[0], -1).T, scores_copy) / N
+        # db2 = np.sum(scores_copy, axis=0) / X.shape[0]
+        db2 = np.sum(scores_copy, axis=0) / N
 
-        # 为了反向传播是上一层（第一层）使用
-        dA1 = np.dot(scores_copy, W2.T)
+        # # 正则化
+        dW2 += self.reg * W2
 
-        dW1 = np.dot(X.T, dA1)
-        db1 = np.sum(dA1, axis=0)
+        # # 为了反向传播是上一层（第一层）使用
+        dA1 = np.dot(scores_copy, W2.T).reshape(A1.shape)
 
-        grads["dW1"] = dW1
-        grads["db1"] = db1
-        grads["dW2"] = dW2
-        grads["db2"] = db2
+        dZ1 = dA1 * (relu_cache > 0)
+        dW1 = np.dot(X.reshape(N, -1).T, dZ1) / N
+        db1 = np.sum(dZ1, axis=0) / N
+        dW1 += self.reg * W1
+
+        grads["W1"] = dW1
+        grads["b1"] = db1
+        grads["W2"] = dW2
+        grads["b2"] = db2
         #######################################################################
         #                             END OF YOUR CODE                             #
         #######################################################################

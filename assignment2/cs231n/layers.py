@@ -57,13 +57,12 @@ def affine_backward(dout, cache):
     x, w, b = cache
     dx, dw, db = None, None, None
 
-    print(x.shape)
+    # print(x.shape)
     ###########################################################################
     # TODO: Implement the affine backward pass.                               #
     ###########################################################################
     dx = np.dot(dout, w.T).reshape(x.shape)                      # N*D
-    dw = np.dot(x.reshape(x.shape[0], -1).T,
-                dout)                         # d*M
+    dw = np.dot(x.reshape(x.shape[0], -1).T,dout)              # d*M
     db = np.sum(dout, axis=0).reshape(dout.shape[1])
     # print("dx.shape=" + str(dx.shape))
     # print("dw.shape=" + str(dw.shape))
@@ -727,12 +726,15 @@ def softmax_loss(x, y):
     - loss: Scalar giving the loss
     - dx: Gradient of the loss with respect to x
     """
-    shifted_logits = x - np.max(x, axis=1, keepdims=True)
-    Z = np.sum(np.exp(shifted_logits), axis=1, keepdims=True)
-    log_probs = shifted_logits - np.log(Z)
-    probs = np.exp(log_probs)
+    shifted_logits = x - np.max(x, axis=1, keepdims=True)       # 数值稳定性
+    Z = np.sum(np.exp(shifted_logits), axis=1, keepdims=True)   # 求和
+    log_probs = shifted_logits - np.log(Z)       # 求各实例中的真实类别评分的比值的log
+    # 等价于
+    # log_probs = np.log(np.exp(shifted_logits)) - np.log(Z)
+    # log_probs = np.log(np.exp(shifted_logits) / np.log)
+    probs = np.exp(log_probs)                   # 求比值
     N = x.shape[0]
-    loss = -np.sum(log_probs[np.arange(N), y]) / N
+    loss = -np.sum(log_probs[np.arange(N), y]) / N    # 求loss
     dx = probs.copy()
     dx[np.arange(N), y] -= 1
     dx /= N
