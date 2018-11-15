@@ -76,11 +76,17 @@ class TwoLayerNet(object):
         # Store the result in the scores variable, which should be an array of      #
         # shape (N, C).                                                             #
         #######################################################################
+        N = X.shape[0]
         A1 = np.dot(X, W1)       # N x D,D x H
         Z1 = A1 + b1			 # N x H
-        A2 = np.dot(Z1, W2) 	 # N x H,H x C
+
+        Z1_relu = (Z1 > 0) * Z1      # 没有这个激活函数准确度保证不了
+
+        A2 = np.dot(Z1_relu, W2) 	 # N x H,H x C
         Z2 = A2 + b2			 # N x C
+
         scores = Z2
+
         #######################################################################
         #                              END OF YOUR CODE                             #
         #######################################################################
@@ -97,12 +103,14 @@ class TwoLayerNet(object):
         # in the variable loss, which should be a scalar. Use the Softmax           #
         # classifier loss.                                                          #
         #######################################################################
+
         scores -= np.max(scores, axis=1, keepdims=True)   # 数值稳定性
-        scores = np.exp(scores)						  # 取指数
+        scores = np.exp(scores)					     	  # 取指数
         scores /= np.sum(scores, axis=1, keepdims=True)   # 计算softmax
-        loss = scores[np.arange(X.shape[0]), y]		  # 计算loss
+        loss = scores[np.arange(X.shape[0]), y]		      # 计算loss
         loss = -np.log(loss).sum()
-        loss -= reg * np.sum(W * W)
+        loss /= N
+        loss += reg * (np.sum(W2 * W2) + np.sum(W1 * W1))
 
         #######################################################################
         #                              END OF YOUR CODE                             #
@@ -115,17 +123,37 @@ class TwoLayerNet(object):
         # and biases. Store the results in the grads dictionary. For example,       #
         # grads['W1'] should store the gradient on W1, and be a matrix of same size #
         #######################################################################
-        grads['W2']=np.array(W2.shape)
-        grads['b2']=np.array(b2.shape)
-        grads['W1']=np.array(W1.shape)
-        grads['b1']=np.array(b1.shape)
-        
-        
+        ds = np.copy(scores)
+        ds[np.arange(N), y] -= 1
+        dW2 = np.dot(Z1_relu.T, ds) / N
+        dW2 += 2 * reg * W2
+
+        db2 = np.sum(ds, axis=0, keepdims=True) / N
+        # db2 = db2.T
+
+        dZ1 = np.dot(ds, W2.T)
+        dZ1 = (Z1 > 0) * dZ1                 	# 反Relu
+
+        dW1 = np.dot(X.T, dZ1) / N
+        dW1 += 2 * reg * W1
+
+        db1 = np.sum(dZ1, axis=0, keepdims=True) / N
+        # db1 = db1.T
+
+        grads['W2'] = dW2
+        grads['b2'] = db2
+        grads['W1'] = dW1
+        grads['b1'] = db1
+
+        # assert dW2.shape==W2.shape,"W2 wrong shape"
+        # assert db2.shape==b2.shape,"b2 wrong shape"
+        # assert dW1.shape==W1.shape,"W1 wrong shape"
+        # assert db1.shape==b1.reshape(-1,1).shape,"b1 wrong shape"
 
         #######################################################################
         #                              END OF YOUR CODE                             #
         #######################################################################
-
+        # print("loss:" + str(loss))
         return loss, grads
 
     def train(self, X, y, X_val, y_val,
