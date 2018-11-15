@@ -62,6 +62,7 @@ class LinearClassifier(object):
             ###################################################################
 
             # evaluate loss and gradient
+            # 调用自己的函数进行运算，返回损失和梯度
             loss, grad = self.loss(X_batch, y_batch, reg)
             loss_history.append(loss)
 
