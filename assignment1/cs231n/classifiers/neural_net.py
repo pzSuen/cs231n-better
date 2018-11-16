@@ -193,6 +193,9 @@ class TwoLayerNet(object):
             # TODO: Create a random minibatch of training data and labels, storing  #
             # them in X_batch and y_batch respectively.                             #
             ###################################################################
+            batch_num = np.random.choice(num_train, batch_size)
+            X_batch = X[batch_num, :]
+            y_batch = y[batch_num]
 
             ###################################################################
             #                             END OF YOUR CODE                          #
@@ -208,13 +211,26 @@ class TwoLayerNet(object):
             # using stochastic gradient descent. You'll need to use the gradients   #
             # stored in the grads dictionary defined above.                         #
             ###################################################################
-            pass
+            dW2 = grads['W2']
+            db2 = grads['b2']
+            dW1 = grads['W1']
+            db1 = grads['b1']
+
+            self.params['W2'] -= learning_rate * dW2
+            self.params['b2'] -= learning_rate * \
+                db2.reshape(self.params['b2'].shape)
+            self.params['W1'] -= learning_rate * dW1
+            self.params['b1'] -= learning_rate * \
+                db1.reshape(self.params['b1'].shape)
+
+            # print(self.params['W2'])
+
             ###################################################################
             #                             END OF YOUR CODE                          #
             ###################################################################
 
-            if verbose and it % 100 == 0:
-                print('iteration %d / %d: loss %f' % (it, num_iters, loss))
+            # if verbose and it % 100 == 0:
+            #     print('iteration %d / %d: loss %f' % (it, num_iters, loss))
 
             # Every epoch, check train and val accuracy and decay learning
             # rate.
@@ -254,7 +270,19 @@ class TwoLayerNet(object):
         #######################################################################
         # TODO: Implement this function; it should be VERY simple!                #
         #######################################################################
-        pass
+
+        A1 = np.dot(X, self.params['W1']) + self.params['b1']
+        A1 = (A1 > 0) * A1
+        A2 = np.dot(A1, self.params['W2']) + self.params['b2']
+
+        scores = A2 - np.max(A2, axis=1, keepdims=True)
+
+        scores = np.exp(scores)
+
+        scores /= np.sum(scores, axis=1, keepdims=True)
+
+        y_pred = np.argmax(scores, axis=1)
+
         #######################################################################
         #                              END OF YOUR CODE                           #
         #######################################################################
