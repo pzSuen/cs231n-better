@@ -230,7 +230,28 @@ class FullyConnectedNet(object):
         # beta2, etc. Scale parameters should be initialized to ones and shift     #
         # parameters should be initialized to zeros.                               #
         #######################################################################
-        pass
+
+        # 共 num_layers+1 层
+        for ly in range(self.num_layers - 1):
+            # 第一层
+            if ly == 0:
+                self.params['W1']=np.random.normal(0,weight_scale,shape=(input_dim,hidden_dims[0]))
+                self.params['b1']=np.zeros(hidden_dims[1])
+                if normalization=="batchnorm":
+                    self.params["gamma1"]=np.ones(shape=(hidden_dims[ly]))
+                    self.params["beta1"]=np.zeros(shape=(hidden_dims[ly]))
+
+            # 中间的num_layer-1层
+            else:
+                self.params['W'+str(ly+1)]=np.random.normal(0,weight_scale,shape=(hidden_dims[ly-1],hidden_dims[ly]))
+                self.params['b'+str(ly+1)]=np.zeros(hidden_dims[ly])
+                if normalization=="batchnorm":
+                    self.params["gamma"+str(ly+1)]=np.ones(shape=(hidden_dims[ly]))
+                    self.params["beta"+str(ly+1)]=np.zeros(shape=(hidden_dims[ly]))
+
+        # 最后一层
+        self.params['W%s'%self.num_layers]=np.random.normal(0,weight_scale,shape=(hidden_dims[-1],num_classes))
+        self.params['b%s'%self.num_layers]=np.zeros(num_classes)
         #######################################################################
         #                             END OF YOUR CODE                             #
         #######################################################################
@@ -289,7 +310,10 @@ class FullyConnectedNet(object):
         # self.bn_params[1] to the forward pass for the second batch normalization #
         # layer, etc.                                                              #
         #######################################################################
+        
         pass
+
+
         #######################################################################
         #                             END OF YOUR CODE                             #
         #######################################################################
@@ -312,7 +336,9 @@ class FullyConnectedNet(object):
         # automated tests, make sure that your L2 regularization includes a factor #
         # of 0.5 to simplify the expression for the gradient.                      #
         #######################################################################
+        
         pass
+
         #######################################################################
         #                             END OF YOUR CODE                             #
         #######################################################################
