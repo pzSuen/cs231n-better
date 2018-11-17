@@ -107,8 +107,8 @@ class TwoLayerNet(object):
         scores -= np.max(scores, axis=1, keepdims=True)   # 数值稳定性
         scores = np.exp(scores)					     	  # 取指数
         scores /= np.sum(scores, axis=1, keepdims=True)   # 计算softmax
-        loss = scores[np.arange(X.shape[0]), y]		      # 计算loss
-        loss = -np.log(loss).sum()
+        loss_i = scores[np.arange(X.shape[0]), y]		      # 计算loss
+        loss = -np.log(loss_i).sum()
         loss /= N
         loss += reg * (np.sum(W2 * W2) + np.sum(W1 * W1))
 
