@@ -79,7 +79,7 @@ class KNearestNeighbor(object):
             X[i, :] - self.X_train[j, :], X[i, :] - self.X_train[j, :])))
 
         #####################################################################
-        #       END OF YOUR CODE                            #
+        #                 END OF YOUR CODE                                  #
         #####################################################################
     return dists
 
@@ -164,7 +164,7 @@ class KNearestNeighbor(object):
       # A list of length k storing the labels of the k nearest neighbors to
       # the ith test point.
       closest_y = []
-      count = np.zeros(11)  # 用于存储标签统计列表，没一个test都要更新
+      count = np.zeros(11)  # 用于存储标签统计列表，每一个test都要更新
 
       #########################################################################
       # TODO:                                                                 #
@@ -173,9 +173,9 @@ class KNearestNeighbor(object):
       # neighbors. Store these labels in closest_y.                           #
       # Hint: Look up the function numpy.argsort.                             #
       #########################################################################
-      tags = np.argsort(dists[i, :])[:k]
+      tags = np.argsort(dists[i, :])[:k]    # 从小到大
 
-      closest_y = self.y_train[tags]
+      closest_y = self.y_train[tags]        # 得到各个类别
 
       #########################################################################
       # TODO:                                                                 #
@@ -191,7 +191,8 @@ class KNearestNeighbor(object):
           count[closest_y[ki]] += 1               # 每个分类出现一次，其count值+1
         # print(i, "=", count)
         # print("np.argsort:", np.argsort(count))
-        y_pred[i] = np.argsort(count)[-1]         # 选择最大的下标，即为其分类
+        # y_pred[i] = np.argsort(count)[-1]         # 选择最大的下标，即为其分类
+          y_pred[i] = np.argmax(count)
       # print("y_pred[i]:", y_pred[i])
 
       # print("label:", label)
