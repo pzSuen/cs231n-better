@@ -2,6 +2,7 @@ pass
 from cs231n.layers import *
 from cs231n.fast_layers import *
 
+# 这个文件里是写好的函数
 
 def affine_relu_forward(x, w, b):
     """
